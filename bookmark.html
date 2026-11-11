@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>言葉の栞</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef3f1;--card:#fffdf8;--ink:#4b4a58;--sub:#8b8a98;--accent:#66a581;--accent-ink:#fff;--board:#ead9bd;--board2:#d8c09c;--shelf:#e3ece8;--line:#e8dfd0;--back:rgba(75,74,88,.38);
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#25282e;--card:#2f3239;--ink:#e6e2ea;--sub:#a29fae;--accent:#86bd9a;--accent-ink:#1e2b23;--shelf:#2d3238;--board:#6b5d4b;--board2:#574a3a;--line:#454750;--back:rgba(0,0,0,.6)}}
+:root[data-theme="dark"]{--bg:#25282e;--card:#2f3239;--ink:#e6e2ea;--sub:#a29fae;--accent:#86bd9a;--accent-ink:#1e2b23;--shelf:#2d3238;--board:#6b5d4b;--board2:#574a3a;--line:#454750;--back:rgba(0,0,0,.6)}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:400 15px/1.7 'Zen Maru Gothic',sans-serif;min-height:100%}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px 6px;max-width:760px;margin:0 auto;flex-wrap:wrap}
+h1{margin:0;font:700 22px 'Zen Maru Gothic',sans-serif;letter-spacing:.12em}
+nav{display:flex;background:var(--shelf);border-radius:99px;padding:4px}
+nav button{border:0;background:none;color:var(--sub);font:500 14px 'Zen Maru Gothic',sans-serif;padding:6px 18px;border-radius:99px;cursor:pointer}
+nav button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+main{max-width:760px;margin:0 auto;padding:10px 18px 40px}
+[hidden]{display:none!important}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.bar{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+#date{font:500 15px 'Zen Maru Gothic',sans-serif;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px 10px}
+#hint{color:var(--sub);font-size:13px}
+.theme{background:var(--shelf);border-radius:14px;padding:10px 16px;margin-bottom:12px;font:500 var(--tw,14px)/1.7 'Zen Maru Gothic',sans-serif}
+.theme b{display:block;color:var(--sub);font-size:12px;font-weight:500;margin-bottom:2px}
+.paper{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 18px;box-shadow:0 6px 18px rgba(80,90,100,.08)}
+#txt{display:block;width:100%;height:min(52vh,440px);writing-mode:vertical-rl;border:0;resize:none;background-color:transparent;
+background-image:repeating-linear-gradient(to left,transparent 0,transparent calc(2.2rem - 1px),var(--line) calc(2.2rem - 1px),var(--line) 2.2rem);background-attachment:local;
+color:var(--ink);font:400 1.1rem/2 'Zen Maru Gothic',sans-serif;padding:0;outline:0}
+#txt::placeholder{color:var(--sub)}
+.act{display:flex;align-items:center;gap:14px;margin-top:16px;flex-wrap:wrap}
+.pri{border:0;background:var(--accent);color:var(--accent-ink);font:700 15px 'Zen Maru Gothic',sans-serif;padding:10px 26px;border-radius:99px;cursor:pointer;box-shadow:0 3px 8px rgba(70,130,100,.25)}
+.pri:active{transform:translateY(1px)}
+.note{color:var(--sub);font-size:12.5px}
+.shelf{background:var(--shelf);border-radius:18px;padding:26px 6px 10px}
+.row{position:relative;display:flex;align-items:flex-end;gap:5px;padding:0 16px;min-height:178px;margin-bottom:30px}
+.row::after{content:"";position:absolute;left:-6px;right:-6px;bottom:-14px;height:14px;background:linear-gradient(var(--board),var(--board2));border-radius:4px;box-shadow:0 6px 10px rgba(60,50,40,.16)}
+.book{position:relative;border:0;border-radius:5px 5px 2px 2px;color:#4b4a58;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:20px 0 9px;font:700 15px 'Zen Maru Gothic',sans-serif;transition:transform .3s ease;box-shadow:inset -3px 0 0 rgba(0,0,0,.06),inset 2px 0 0 rgba(255,255,255,.45),1px 2px 3px rgba(60,50,40,.2)}
+.book::before,.book::after{content:"";position:absolute;left:0;right:0;height:3px;background:rgba(255,255,255,.6)}
+.book::before{top:9px}.book::after{bottom:32px}
+.book:hover{transform:translateY(-6px)}
+.book.out{transform:translateY(-26px) rotate(-2deg)}
+.sp{writing-mode:vertical-rl;letter-spacing:.12em}
+.tcy{text-combine-upright:all}
+.ct{font:500 10px 'Zen Maru Gothic',sans-serif;opacity:.75;font-style:normal}
+.empty{text-align:center;color:var(--sub);padding:34px 10px 40px}
+#reader{position:fixed;inset:0;background:var(--back);display:flex;align-items:center;justify-content:center;padding:16px;z-index:20}
+.book-open{width:min(100%,720px);height:min(84vh,620px);background:var(--card);border-radius:8px 18px 18px 8px;border-left:10px solid var(--accent);box-shadow:0 20px 50px rgba(0,0,0,.28);display:flex;flex-direction:column;animation:bi .35s ease}
+@keyframes bi{from{transform:translateY(40px) scale(.95);opacity:0}}
+@media (prefers-reduced-motion:reduce){.book-open{animation:none}.book{transition:none}}
+.rh{display:flex;justify-content:space-between;align-items:center;padding:10px 14px 0 16px}
+.rh span{color:var(--sub);font-size:12.5px}
+.rh button{border:0;background:var(--shelf);color:var(--ink);font:500 13px 'Zen Maru Gothic',sans-serif;padding:5px 14px;border-radius:99px;cursor:pointer}
+.pages{flex:1;min-height:0;writing-mode:vertical-rl;overflow-x:auto;overflow-y:hidden;padding:14px 22px;font-family:'Zen Maru Gothic',sans-serif}
+.pages h2{margin:0 0 0 2.2em;font:700 1.5rem 'Zen Maru Gothic',sans-serif;letter-spacing:.2em}
+.pages article{margin-left:1.3em;padding-left:1.3em;border-left:1px dashed var(--line);cursor:pointer}
+.pages .d{margin-left:.8em;color:var(--accent);font-weight:600;font-size:var(--ts,1.05rem);letter-spacing:.1em}
+
+.pages p{margin:0;font-size:var(--ts,1.05rem);line-height:1.95;white-space:nowrap}
+#cover{position:fixed;inset:0;background:var(--back);display:flex;align-items:center;justify-content:center;padding:16px;z-index:25}
+.cp{background:var(--card);border-radius:18px;padding:22px 20px;max-width:460px;max-height:90vh;overflow:auto;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.28)}
+.cp h3{margin:0 0 4px;font:700 17px 'Zen Maru Gothic',sans-serif}
+.cp p{margin:0 0 18px;color:var(--sub);font-size:13px}
+.sw{display:grid;grid-template-columns:repeat(6,1fr);gap:12px 4px}
+.sw button{border:0;background:none;color:var(--ink);font:500 10px 'Zen Maru Gothic',sans-serif;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px}
+.mb{width:28px;height:72px;border-radius:5px 5px 2px 2px;display:flex;align-items:center;justify-content:center;color:#4b4a58;font:700 14px 'Zen Maru Gothic',sans-serif;writing-mode:vertical-rl;box-shadow:inset -3px 0 0 rgba(0,0,0,.06),inset 2px 0 0 rgba(255,255,255,.45),1px 2px 3px rgba(60,50,40,.2);transition:transform .2s}
+.sw button:hover .mb,.sw button:focus-visible .mb{transform:translateY(-6px)}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 18px;border-radius:99px;font-size:13.5px;z-index:30}
+</style>
+</head>
+<body>
+<header>
+  <h1>言葉の栞</h1>
+  <nav><button data-v="write" class="on">書く</button><button data-v="shelf">本棚</button></nav>
+</header>
+<main>
+  <section id="write">
+    <div class="bar"><input type="date" id="date" aria-label="日付"><span id="hint"></span></div>
+    <div class="theme" id="theme"></div>
+    <div class="paper"><textarea id="txt" placeholder="お題に沿って、ひとことでも。"></textarea></div>
+    <div class="act"><button class="pri" id="save">本に綴じる</button><span class="note">記録は、この端末のブラウザに保存されます。</span></div>
+  </section>
+  <section id="shelf" hidden>
+    <div class="shelf"><div id="rows"></div></div>
+  </section>
+</main>
+<div id="reader" hidden>
+  <div class="book-open" role="dialog" aria-modal="true">
+    <div class="rh"><span>日付をタップすると、その日の記録を開けます</span><button id="close">本棚にもどす</button></div>
+    <div class="pages" id="pages"></div>
+  </div>
+</div>
+<script>
+const K='tategaki-diary-v1';
+let D={};
+try{D=JSON.parse(localStorage.getItem(K)||'{}')}catch(e){D={}}
+let C={};
+try{C=JSON.parse(localStorage.getItem('tategaki-covers-v1')||'{}')}catch(e){C={}}
+const persist=()=>{try{localStorage.setItem(K,JSON.stringify(D));localStorage.setItem('tategaki-covers-v1',JSON.stringify(C))}catch(e){}};
+const COVERS=[['さくら','#f4c6d0'],['いちご','#f1b1bb'],['もも','#f7c4b8'],['あんず','#f8cfae'],['みかん','#f8d9a6'],['はちみつ','#f2dd9b'],['たまご','#f5eaa8'],['レモン','#e9ecaa'],['わかば','#d3e6b0'],['うぐいす','#c3d9a2'],['あおば','#b8e0b4'],['ミント','#aee0cf'],['はっか','#bfe6dc'],['ひすい','#a5d6c9'],['みずいろ','#b4e0e6'],['そら','#bcd9ee'],['あさぎ','#a9c9e8'],['あじさい','#b8c0ec'],['ふじ','#d2caf0'],['うすふじ','#dcc9ee'],['すみれ','#c8b4e0'],['ぶどう','#d9b8dc'],['ぼたん','#e6c8e8'],['ゆき','#e9e4dc']];
+const $=s=>document.querySelector(s);
+const pad=n=>String(n).padStart(2,'0');
+const W='日月火水木金土';
+const tcy=s=>'<span class="tcy">'+s+'</span>';
+const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const wd=k=>W[new Date(k+'T00:00:00').getDay()];
+const today=()=>{const t=new Date();return t.getFullYear()+'-'+pad(t.getMonth()+1)+'-'+pad(t.getDate())};
+const COLORS=['#f6c9c0','#f8d9b5','#f7e8a9','#d6e8b5','#bfe3cf','#bde0e4','#c6d8f2','#d4cdf0','#e8cdee','#f3c6dc','#f0d3b9','#cfdcc4'];
+
+const THEMES=['人から言われて、思わず心が緩んだ優しい一言','誰かから不意にもらった、温かい気遣いや思いやりを感じるメッセージ','誰かの無邪気な様子や純粋な行動に、思わず心がなごんだ瞬間','気にかけてくれた誰かからの「お疲れ様」「元気？」というひとこと','失敗したり落ち込んだりしたとき、救われた誰かの温かいフォロー','何気ない日常の中で、誰かに「ありがとう」と心から感謝された瞬間','過去にかけられた言葉が、今でもお守りのように心に残っているエピソード','日常の中で「小さなお互い様」や相手の親切を感じたこと','外出先や買い物で、誰かのさりげない気遣いや笑顔に触れたこと','スーパーやコンビニのレジでの、ちょっとした温かいやりとり','身近な場所で目にした、誰かの温かい関わり合いや優しい空気感','タイミングが奇跡的にうまく噛み合って嬉しかった瞬間','誰かと交わした、短いけれど心が和む挨拶や世間話','朝の一杯の温かいお茶やコーヒーの香りに癒やされた瞬間','お風呂にゆっくり浸かったときの「あぁ、幸せ」と感じた瞬間','お日様の匂いがするふかふかの布団や洗濯物に包まれたとき','お気に入りの料理や美味しいものを食べたときの至福の時間','部屋着の肌触りや、お気に入りのファブリックのぬくもり','窓を開けたときに広がる、新鮮で爽やかな空気を感じた朝','静まり返った部屋で、心地よい音楽や音に耳を澄ませた時間','忙しい日常の中で、自分だけに淹れた特別なおやつの時間','部屋の片付けや掃除が終わり、空間がすっきりした達成感','お気に入りの本や動画の世界に、時間を忘れて没頭できた時間','静かな時間を独り占めできた、贅沢なひとり時間','自分へのご褒美に買った小さな楽しみ（お花やスイーツなど）','「今日はマイペースに過ごす」と決めて、心ゆくまで寛いだ日','道端や動画で見かけた、動物たちののんびりした姿に癒やされたこと','ふと街や空間で「季節の移り変わり」を感じた瞬間','空を見上げたら、きれいな雲や夕焼け、星空が広がっていたこと','身近な場所で「ちいさな生命力や彩り」を見つけたこと','風の音や鳥のさえずりなど、自然の音にふと気づいた瞬間','ふと思い出した、誰かの優しさや温もりに包まれていた過去の記憶','誰かと何気ないことでお腹を抱えて笑い合った、楽しかった思い出','昔の品物や記録を見返して、当時の温かい気持ちや懐かしさが蘇ったこと','食べるとなぜかホッとする「自分にとってのソウルフード」','SNSやネットで見かけた、見知らぬ誰かの心温まるエピソード','好きなアーティストや推しの活動から、元気や癒やしをもらったこと','心に響く素敵な言葉や、思わずクスッと笑える表現に出会えたこと','天気が良くて「外を歩いているだけで気持ちいい」と感じた日','一日の終わりに、窓辺や外で風にあたって深呼吸した時間','歩いているときに目に入った、なんだか好きな風景や街の表情','お気に入りの飲み物を味わいながら、ホッと一息ついた時間','区切りのタイミングで「無事に乗り切った」と安堵できた日','日常の中で「ちょっとした幸運」やプチラッキーを感じたこと','移動時間が予定通りスムーズに進んで心地よかったこと','忘れていた大切なものや、過去の自分からの小さな遺産を再発見したこと','誰かから小さな親切やちょっとしたプレゼントを受け取った嬉しさ','心がフッと軽くなったり、気分転換がうまくいった瞬間','朝起きたときの感覚がよくて「良い一日になりそう」と思えた朝','「今日も一日、平和に無事に終わったなぁ」と布団の中で感じた夜'];
+let T={};
+try{T=JSON.parse(localStorage.getItem('tategaki-themes-v1')||'{}')}catch(e){T={}}
+function themeFor(k){
+  if(!k)return '';
+  const ym=k.slice(0,7),day=Number(k.slice(8));
+  if(!T[ym]){
+    const pk=Object.keys(T).filter(x=>x<ym).sort(),ever=new Set(),pv=new Set(pk.length?T[pk[pk.length-1]]:[]);
+    pk.forEach(x=>T[x].forEach(i=>ever.add(i)));
+    const order=THEMES.map((_,i)=>[i,!ever.has(i)?0:pv.has(i)?2:1,Math.random()]).sort((a,b)=>a[1]-b[1]||a[2]-b[2]);
+    T[ym]=order.slice(0,31).map(a=>a[0]);
+    try{localStorage.setItem('tategaki-themes-v1',JSON.stringify(T))}catch(e){}
+  }
+  return THEMES[T[ym][day-1]];
+}
+const MAXLEN=Math.max(...THEMES.map(t=>t.length));
+function fitThemes(){
+  const th=$('#theme');
+  if(!$('#write').hidden){
+    const s=Math.floor((th.clientWidth-32)/MAXLEN*10)/10;
+    th.style.setProperty('--tw',Math.min(15,Math.max(11,s))+'px');
+    th.style.whiteSpace=s>=11?'nowrap':'normal';
+  }
+  if(!$('#reader').hidden){
+    const pg=$('#pages');
+    const s=Math.floor((pg.clientHeight-28)/MAXLEN*10)/10;
+    pg.style.setProperty('--ts',Math.max(9,Math.min(18,s))+'px');
+  }
+}
+function show(v){
+  $('#write').hidden=v!=='write';$('#shelf').hidden=v!=='shelf';
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+  if(v==='shelf')renderShelf();fitThemes();
+}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>show(b.dataset.v));
+
+function loadDate(){
+  const k=$('#date').value;
+  $('#txt').value=D[k]||'';
+  $('#theme').innerHTML=k?'<b>この日のお題</b>'+esc(themeFor(k)):'';fitThemes();
+  $('#hint').textContent=D[k]?'この日の記録を開いています':'';
+}
+$('#date').onchange=loadDate;
+
+function toast(t){
+  const e=document.createElement('div');e.className='toast';e.textContent=t;document.body.appendChild(e);
+  setTimeout(()=>e.remove(),1800);
+}
+$('#save').onclick=()=>{
+  const k=$('#date').value;if(!k){toast('日付を選んでください');return}
+  const v=$('#txt').value.trim();
+  const ym0=k.slice(0,7);let needCover=false;
+  if(v){needCover=!C[ym0]&&!Object.keys(D).some(x=>x.startsWith(ym0));D[k]=v;toast('本に綴じました')}
+  else if(D[k]){delete D[k];if(!Object.keys(D).some(x=>x.startsWith(ym0)))delete C[ym0];toast('この日の記録を消しました')}
+  else{toast('何か書いてみましょう');return}
+  persist();loadDate();if(needCover)pickCover(ym0);
+};
+
+function pickCover(ym){
+  const [y,m]=ym.split('-').map(Number);
+  const o=document.createElement('div');o.id='cover';
+  o.innerHTML='<div class="cp" role="dialog" aria-modal="true"><h3>'+y+'年'+m+'月の本の表紙を選びましょう</h3><p>この月の最初の日記です。選んだ色が、本棚の背表紙になります。</p><div class="sw"></div></div>';
+  const sw=o.querySelector('.sw');
+  COVERS.forEach(([name,col])=>{
+    const b=document.createElement('button');
+    b.innerHTML='<span class="mb" style="background:'+col+'">'+m+'月</span>'+name;
+    b.onclick=()=>{C[ym]=col;persist();o.remove();toast('表紙を決めました')};
+    sw.appendChild(b);
+  });
+  document.body.appendChild(o);
+  sw.querySelector('button').focus();
+}
+function renderShelf(){
+  const months=[...new Set(Object.keys(D).map(k=>k.slice(0,7)))].sort();
+  const rows=$('#rows');
+  if(!months.length){rows.innerHTML='<div class="empty">本棚はまだ空です。<br>「書く」で最初の一日を綴じると、ここに今月の本が並びます。</div>';return}
+  const per=Math.max(3,Math.floor((Math.min(innerWidth,760)-70)/56));
+  rows.innerHTML='';
+  for(let i=0;i<months.length;i+=per){
+    const row=document.createElement('div');row.className='row';
+    months.slice(i,i+per).forEach(ym=>{
+      const [y,m]=ym.split('-').map(Number);
+      const n=Object.keys(D).filter(k=>k.startsWith(ym)).length;
+      const b=document.createElement('button');b.className='book';
+      b.style.background=C[ym]||COLORS[m-1];
+      b.style.width=(36+Math.round(n*0.7))+'px';
+      b.style.height=(150+((y*12+m)*7%4)*8)+'px';
+      b.setAttribute('aria-label',y+'年'+m+'月の本');
+      b.innerHTML='<span class="sp">'+tcy(y)+'年'+tcy(m)+'月</span><i class="ct">'+n+'日</i>';
+      b.onclick=()=>{b.classList.add('out');setTimeout(()=>{openBook(ym);b.classList.remove('out')},300)};
+      row.appendChild(b);
+    });
+    rows.appendChild(row);
+  }
+}
+
+function openBook(ym){
+  const [y,m]=ym.split('-').map(Number);
+  const keys=Object.keys(D).filter(k=>k.startsWith(ym)).sort();
+  let h='<h2>'+tcy(y)+'年'+tcy(m)+'月</h2>';
+  keys.forEach(k=>{
+    const d=Number(k.slice(8));
+    h+='<article data-k="'+k+'"><div class="d">'+tcy(m)+'月'+tcy(d)+'日（'+wd(k)+'）</div><p>'+esc(themeFor(k))+'</p></article>';
+  });
+  $('#pages').innerHTML=h;
+  $('#reader').hidden=false;fitThemes();
+  $('#pages').scrollLeft=0;
+  $('#pages').querySelectorAll('article').forEach(a=>a.onclick=()=>{
+    closeBook();$('#date').value=a.dataset.k;loadDate();show('write');
+  });
+}
+function closeBook(){$('#reader').hidden=true}
+$('#close').onclick=closeBook;
+$('#reader').onclick=e=>{if(e.target.id==='reader')closeBook()};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeBook()});
+addEventListener('resize',()=>{if(!$('#shelf').hidden)renderShelf();fitThemes()});
+
+$('#date').value=today();loadDate();
+</script>
+</body>
+</html>
