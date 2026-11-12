@@ -31,10 +31,12 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px soli
 background-image:repeating-linear-gradient(to left,transparent 0,transparent calc(2.2rem - 1px),var(--line) calc(2.2rem - 1px),var(--line) 2.2rem);background-attachment:local;
 color:var(--ink);font:400 1.1rem/2 'Zen Maru Gothic',sans-serif;padding:0;outline:0}
 #txt::placeholder{color:var(--sub)}
-.act{display:flex;align-items:center;gap:14px;margin-top:16px;flex-wrap:wrap}
+.act{display:flex;align-items:center;justify-content:space-between;gap:12px 14px;margin-top:16px;flex-wrap:wrap}
 .pri{border:0;background:var(--accent);color:var(--accent-ink);font:700 15px 'Zen Maru Gothic',sans-serif;padding:10px 26px;border-radius:99px;cursor:pointer;box-shadow:0 3px 8px rgba(70,130,100,.25)}
 .pri:active{transform:translateY(1px)}
-.note{color:var(--sub);font-size:12.5px}
+.sec{border:1.5px solid var(--accent);background:var(--card);color:var(--ink);font:700 15px 'Zen Maru Gothic',sans-serif;padding:9px 24px;border-radius:99px;cursor:pointer}
+.sec:disabled{opacity:.6;cursor:wait}
+.note{color:var(--sub);font-size:12.5px;width:100%}
 .shelf{background:var(--shelf);border-radius:18px;padding:26px 6px 10px}
 .row{position:relative;display:flex;align-items:flex-end;gap:5px;padding:0 16px;min-height:178px;margin-bottom:30px}
 .row::after{content:"";position:absolute;left:-6px;right:-6px;bottom:-14px;height:14px;background:linear-gradient(var(--board),var(--board2));border-radius:4px;box-shadow:0 6px 10px rgba(60,50,40,.16)}
@@ -81,7 +83,7 @@ color:var(--ink);font:400 1.1rem/2 'Zen Maru Gothic',sans-serif;padding:0;outlin
     <div class="bar"><input type="date" id="date" aria-label="日付"><span id="hint"></span></div>
     <div class="theme" id="theme"></div>
     <div class="paper"><textarea id="txt" placeholder="お題に沿って、ひとことでも。"></textarea></div>
-    <div class="act"><button class="pri" id="save">本に綴じる</button><span class="note">記録は、この端末のブラウザに保存されます。</span></div>
+    <div class="act"><button class="pri" id="save">本に綴じる</button><button class="sec" id="letter">手紙にする</button><span class="note">記録は、この端末のブラウザに保存されます。</span></div>
   </section>
   <section id="shelf" hidden>
     <div class="shelf"><div id="rows"></div></div>
@@ -227,6 +229,80 @@ $('#reader').onclick=e=>{if(e.target.id==='reader')closeBook()};
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeBook()});
 addEventListener('resize',()=>{if(!$('#shelf').hidden)renderShelf();fitThemes()});
 
+const FF='"Zen Maru Gothic","Hiragino Maru Gothic ProN","Yu Gothic",sans-serif';
+const ROT=new Set(Array.from('ー―—–〜～…‥「」『』（）()【】〔〕〈〉《》［］[]-'));
+const SMALL=new Set(Array.from('ぁぃぅぇぉっゃゅょゎァィゥェォッャュョヮ'));
+const PUN=new Set(Array.from('、。，．'));
+const HANG=new Set(Array.from('、。，．」』）】〕〉》］'));
+const NOEND=new Set(Array.from('「『（【〔〈《［'));
+function flow(text,N){
+  const cols=[];let cur=[];
+  const nl=()=>{cols.push(cur);cur=[]};
+  for(const para of text.split('\n')){
+    for(const ch of Array.from(para)){
+      if(cur.length>=N){
+        if(HANG.has(ch)&&cur.length===N){cur.push(ch);nl();continue}
+        nl();
+      }
+      if(cur.length===N-1&&NOEND.has(ch))nl();
+      cur.push(ch);
+    }
+    nl();
+  }
+  return cols;
+}
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
+async function drawLetter(k,text){
+  const cs=getComputedStyle(document.documentElement),v=n=>cs.getPropertyValue(n).trim();
+  const [y,m,d]=k.split('-').map(Number);
+  const dateStr=y+'年'+m+'月'+d+'日（'+wd(k)+'）',theme=themeFor(k);
+  try{const all='言葉の栞この日のお題'+dateStr+theme+text;await Promise.all(['700','500','400'].map(w=>document.fonts.load(w+' 34px "Zen Maru Gothic"',all)))}catch(e){}
+  const W=1080,M=72,fs=34,pitch=68,pad=40,MAXC=12,PW=W-M*2;
+  let N=16,cols;
+  for(;;N++){cols=flow(text,N);if(cols.length<=MAXC||N>300)break}
+  const paperTop=352,paperH=pad*2+(N+1)*fs,H=paperTop+paperH+M;
+  const cv=document.createElement('canvas');cv.width=W;cv.height=H;
+  const c=cv.getContext('2d');
+  c.fillStyle=v('--bg');c.fillRect(0,0,W,H);
+  c.textBaseline='middle';c.textAlign='left';
+  c.fillStyle=v('--ink');c.font='700 44px '+FF;c.fillText('言葉の栞',M,100);
+  c.font='500 32px '+FF;c.fillText(dateStr,M,168);
+  c.fillStyle=v('--shelf');rr(c,M,216,PW,108,28);c.fill();
+  const ts=Math.min(34,Math.floor((PW-64)/MAXLEN));
+  c.fillStyle=v('--sub');c.font='500 22px '+FF;c.fillText('この日のお題',M+32,250);
+  c.fillStyle=v('--ink');c.font='500 '+ts+'px '+FF;c.fillText(theme,M+32,290);
+  c.fillStyle=v('--card');rr(c,M,paperTop,PW,paperH,32);c.fill();
+  c.strokeStyle=v('--line');c.lineWidth=2;c.stroke();
+  const xr=M+PW-pad,top=paperTop+pad;
+  c.lineWidth=1.5;
+  for(let i=1;i<=MAXC;i++){const x=xr-pitch*i;c.beginPath();c.moveTo(x,top);c.lineTo(x,top+(N+1)*fs);c.stroke()}
+  c.fillStyle=v('--ink');c.font='400 '+Math.round(fs*0.94)+'px '+FF;c.textAlign='center';
+  cols.forEach((col,ki)=>col.forEach((ch,i)=>{
+    const cx=xr-pitch*(ki+.5),cy=top+fs*(i+.5);
+    c.save();c.translate(cx,cy);
+    if(ROT.has(ch)){c.rotate(Math.PI/2);c.fillText(ch,0,0)}
+    else if(PUN.has(ch))c.fillText(ch,fs*.55,-fs*.6);
+    else if(SMALL.has(ch))c.fillText(ch,fs*.1,-fs*.1);
+    else c.fillText(ch,0,0);
+    c.restore();
+  }));
+  return cv;
+}
+let DL=null;
+(window.claude&&claude.use?claude.use('downloads').catch(()=>null):Promise.resolve(null)).then(d=>{DL=d;if(!d)$('#letter').hidden=true});
+$('#letter').onclick=async()=>{
+  const k=$('#date').value,text=$('#txt').value.replace(/\r/g,'').trimEnd();
+  if(!k||!text){toast('日記を書いてから、手紙にできます');return}
+  if(!DL){toast('この画面では画像を保存できません');return}
+  const b=$('#letter');b.disabled=true;
+  try{
+    const cv=await drawLetter(k,text);
+    const blob=await new Promise(r=>cv.toBlob(r,'image/jpeg',.92));
+    const res=await DL.save({filename:'言葉の栞_'+k+'.jpg',data:blob});
+    if(res&&res.status==='saved')toast('手紙を保存しました');
+  }catch(e){if(!e||e.code!=='declined')toast('保存できませんでした')}
+  b.disabled=false;
+};
 $('#date').value=today();loadDate();
 </script>
 </body>
