@@ -289,17 +289,35 @@ async function drawLetter(k,text){
   return cv;
 }
 let DL=null;
-(window.claude&&claude.use?claude.use('downloads').catch(()=>null):Promise.resolve(null)).then(d=>{DL=d;if(!d)$('#letter').hidden=true});
+(window.claude&&claude.use?claude.use('downloads').catch(()=>null):Promise.resolve(null)).then(d=>{DL=d});
+function showLetter(url){
+  const o=document.createElement('div');o.id='cover';
+  o.innerHTML='<div class="cp" style="text-align:center"><p>端末に保存されない場合は、画像を長押しして保存してください。</p><img src="'+url+'" alt="手紙" style="max-width:100%;max-height:60vh;border-radius:10px"><div class="act" style="justify-content:center"><button class="pri">閉じる</button></div></div>';
+  o.querySelector('button').onclick=()=>{o.remove();URL.revokeObjectURL(url)};
+  document.body.appendChild(o);
+}
+async function saveBlob(blob,name){
+  if(DL){const r=await DL.save({filename:name,data:blob});return !!r&&r.status==='saved'}
+  const file=new File([blob],name,{type:'image/jpeg'});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){
+    try{await navigator.share({files:[file],title:'言葉の栞'});return true}
+    catch(e){if(e&&e.name==='AbortError')return false}
+  }
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
+  showLetter(url);
+  return true;
+}
 $('#letter').onclick=async()=>{
   const k=$('#date').value,text=$('#txt').value.replace(/\r/g,'').trimEnd();
   if(!k||!text){toast('日記を書いてから、手紙にできます');return}
-  if(!DL){toast('この画面では画像を保存できません');return}
+  
   const b=$('#letter');b.disabled=true;
   try{
     const cv=await drawLetter(k,text);
     const blob=await new Promise(r=>cv.toBlob(r,'image/jpeg',.92));
-    const res=await DL.save({filename:'言葉の栞_'+k+'.jpg',data:blob});
-    if(res&&res.status==='saved')toast('手紙を保存しました');
+    const ok=await saveBlob(blob,'言葉の栞_'+k+'.jpg');
+    if(ok)toast('手紙を保存しました');
   }catch(e){if(!e||e.code!=='declined')toast('保存できませんでした')}
   b.disabled=false;
 };
